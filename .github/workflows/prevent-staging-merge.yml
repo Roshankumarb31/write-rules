@@ -1,62 +1,21 @@
-name: 'Prevent Staging Branch Merge'
-
+name: Prevent Staging Merge
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    branches-ignore:
+      - staging  # Don't run when targeting staging (allow merges INTO staging)
 
 jobs:
-  block-staging-source:
+  check-staging-source:
     runs-on: ubuntu-latest
-    name: 'Block staging as source branch'
-    
     steps:
-      - name: Display PR Information
+      - name: Block staging branch merges
+        if: github.head_ref == 'staging'
         run: |
-          echo "🔍 Checking PR details..."
-          echo "📤 Source branch (HEAD): ${{ github.head_ref }}"
-          echo "📥 Target branch (BASE): ${{ github.base_ref }}"
-          echo "👤 Author: ${{ github.actor }}"
-          echo "🔗 PR #${{ github.event.number }}"
-
-      - name: Validate branch merge direction
+          echo "❌ ERROR: Cannot merge staging branch into ${{ github.base_ref }}"
+          echo "Staging should only receive merges, not create them."
+          exit 1
+      
+      - name: Allow all other merges
+        if: github.head_ref != 'staging'
         run: |
-          SOURCE="${{ github.head_ref }}"
-          TARGET="${{ github.base_ref }}"
-          
-          if [[ "$SOURCE" == "staging" ]]; then
-            echo ""
-            echo "🚨 =================================="
-            echo "🚨   MERGE DIRECTION ERROR!"
-            echo "🚨 =================================="
-            echo ""
-            echo "❌ You're trying to merge FROM: $SOURCE"
-            echo "❌                            TO: $TARGET"
-            echo ""
-            echo "📋 Our branching rules:"
-            echo "   ✅ Any branch → staging (ALLOWED)"
-            echo "   ❌ staging → any branch (BLOCKED)"
-            echo ""
-            echo "💡 What you should do instead:"
-            echo "   1. Close this PR"
-            echo "   2. Create a PR from '$TARGET' to 'staging'"
-            echo "   3. Or merge your changes differently"
-            echo ""
-            echo "🤔 Need help? Check our branching guide!"
-            echo ""
-            exit 1
-          else
-            echo "✅ Branch direction is valid!"
-            echo "📝 Merging: $SOURCE → $TARGET"
-          fi
-
-      - name: Success notification
-        if: success()
-        run: |
-          echo ""
-          echo "🎉 =================================="
-          echo "🎉   PR VALIDATION PASSED!"
-          echo "🎉 =================================="
-          echo ""
-          echo "✅ Source: ${{ github.head_ref }}"
-          echo "✅ Target: ${{ github.base_ref }}"
-          echo "✅ Ready for review and merge!"
+          echo "✅ Merge allowed: ${{ github.head_ref }} → ${{ github.base_ref }}"
