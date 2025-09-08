@@ -1,13 +1,14 @@
-name: Block Staging
+name: Block Staging and Production
 on:
   pull_request:
-    branches-ignore: [staging]
+    branches-ignore: [staging, production]
 
 jobs:
   block:
-    if: github.head_ref == 'staging'
+    if: github.head_ref == 'staging' || github.head_ref == 'production'
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo "❌ Staging cannot merge into ${{ github.base_ref }}"
+          echo "❌ ${{ github.head_ref }} cannot merge into ${{ github.base_ref }}"
+          echo "Both staging and production should only receive merges, not create them"
           exit 1

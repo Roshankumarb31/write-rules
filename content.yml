@@ -1,0 +1,75 @@
+# path ==> G:\write-rules\.github\workflows\prevent-staging-merge.yml
+
+
+name: Prevent Staging Merge
+on:
+  pull_request:
+    branches-ignore:
+      - staging
+
+jobs:
+  check-staging-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block staging branch merges (INSTANT)
+        if: github.head_ref == 'staging'
+        run: |
+          echo "❌ BLOCKED: Cannot merge staging into ${{ github.base_ref }}"
+          exit 1
+        
+      - name: Allow merge (INSTANT)  
+        if: github.head_ref != 'staging'
+        run: echo "✅ Merge allowed"
+
+
+======================================
+
+
+
+name: Block Staging
+on:
+  pull_request:
+    branches-ignore: [staging]
+
+jobs:
+  block-staging:
+    if: github.head_ref == 'staging'
+    runs-on: ubuntu-latest
+    steps:
+      - run: exit 1
+
+
+
+=========    BEST   ==============
+
+name: Block Staging
+on:
+  pull_request:
+    branches-ignore: [staging]
+
+jobs:
+  block:
+    if: github.head_ref == 'staging'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "❌ Staging cannot merge into ${{ github.base_ref }}"
+          exit 1
+
+
+======  BOTH ========
+
+name: Block Staging and Production
+on:
+  pull_request:
+    branches-ignore: [staging, production]
+
+jobs:
+  block:
+    if: github.head_ref == 'staging' || github.head_ref == 'production'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "❌ ${{ github.head_ref }} cannot merge into ${{ github.base_ref }}"
+          echo "Both staging and production should only receive merges, not create them"
+          exit 1
