@@ -3,6 +3,8 @@ name: Block Staging Branch Merges
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  push:
+    branches: ['**']  # Triggers on all branches
 
 jobs:
   check-staging-merge:
@@ -10,11 +12,19 @@ jobs:
     steps:
       - name: Check if source is staging branch
         run: |
-          if [ "${{ github.head_ref }}" == "staging" ]; then
-            echo "❌ ERROR: Pull requests from 'staging' branch are not allowed"
-            echo "Source branch: ${{ github.head_ref }}"
-            echo "Target branch: ${{ github.base_ref }}"
-            exit 1
-          else
-            echo "✅ Source branch '${{ github.head_ref }}' is allowed"
+          # For Pull Requests
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            if [[ "${{ github.head_ref }}" == "staging" ]]; then
+              echo "❌ ERROR: Pull requests from 'staging' branch are not allowed"
+              echo "Source branch: ${{ github.head_ref }}"
+              echo "Target branch: ${{ github.base_ref }}"
+              exit 1
+            else
+              echo "✅ Pull request from '${{ github.head_ref }}' is allowed"
+            fi
+          fi
+          
+          # For Direct Pushes - allow all pushes (since we only want to block PRs from staging)
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "✅ Direct push to '${{ github.ref_name }}' is allowed"
           fi
