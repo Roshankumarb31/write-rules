@@ -1,0 +1,23 @@
+name: Prevent Staging Branch Merge
+on:
+  pull_request:
+    branches:
+      - '*'           # Any branch
+    branches-ignore:
+      - staging       # Except staging
+jobs:
+  block-staging-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block staging merges
+        if: github.head_ref == 'staging'
+        run: |
+          echo "🚫 MERGE BLOCKED!"
+          echo "❌ Cannot merge 'staging' branch into '${{ github.base_ref }}'"
+          echo "📋 Policy: Staging cannot merge into ANY other branch"
+          exit 1
+          
+      - name: Allow other branches
+        if: github.head_ref != 'staging'
+        run: |
+          echo "✅ Merge allowed from '${{ github.head_ref }}' to '${{ github.base_ref }}'"
