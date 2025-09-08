@@ -2,20 +2,18 @@ name: Prevent Staging Merge
 on:
   pull_request:
     branches-ignore:
-      - staging  # Don't run when targeting staging (allow merges INTO staging)
+      - staging
 
 jobs:
   check-staging-source:
     runs-on: ubuntu-latest
     steps:
-      - name: Block staging branch merges
+      - name: Block staging branch merges (INSTANT)
         if: github.head_ref == 'staging'
         run: |
-          echo "❌ ERROR: Cannot merge staging branch into ${{ github.base_ref }}"
-          echo "Staging should only receive merges, not create them."
+          echo "❌ BLOCKED: Cannot merge staging into ${{ github.base_ref }}"
           exit 1
-      
-      - name: Allow all other merges
+        
+      - name: Allow merge (INSTANT)  
         if: github.head_ref != 'staging'
-        run: |
-          echo "✅ Merge allowed: ${{ github.head_ref }} → ${{ github.base_ref }}"
+        run: echo "✅ Merge allowed"
