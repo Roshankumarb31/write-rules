@@ -7,12 +7,14 @@ on:
 jobs:
   check-staging-merge:
     runs-on: ubuntu-latest
-    if: github.head_ref == 'staging'
     steps:
-      - name: Block staging merge to any branch
+      - name: Check if source is staging branch
         run: |
-          echo "❌ ERROR: Merging from 'staging' branch is not allowed"
-          echo "Source branch: staging"
-          echo "Target branch: ${{ github.base_ref }}"
-          echo "This rule applies to ALL branches"
-          exit 1
+          if [ "${{ github.head_ref }}" == "staging" ]; then
+            echo "❌ ERROR: Pull requests from 'staging' branch are not allowed"
+            echo "Source branch: ${{ github.head_ref }}"
+            echo "Target branch: ${{ github.base_ref }}"
+            exit 1
+          else
+            echo "✅ Source branch '${{ github.head_ref }}' is allowed"
+          fi
