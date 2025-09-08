@@ -1,10 +1,12 @@
 name: Prevent Staging Branch Merge
+
 on:
   pull_request:
     branches:
       - '*'           # Any branch
     branches-ignore:
       - staging       # Except staging
+
 jobs:
   block-staging-merge:
     runs-on: ubuntu-latest
