@@ -4,8 +4,10 @@ on:
     branches-ignore: [staging]
 
 jobs:
-  block-staging:
+  block:
     if: github.head_ref == 'staging'
     runs-on: ubuntu-latest
     steps:
-      - run: exit 1
+      - run: |
+          echo "❌ Staging cannot merge into ${{ github.base_ref }}"
+          exit 1
