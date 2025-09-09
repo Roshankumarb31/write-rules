@@ -8,3 +8,5 @@ print("bye bye")
 # bye bye
 # hi hi hi
 # bye bye bye
+
+print("normal test")
