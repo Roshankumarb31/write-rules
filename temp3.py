@@ -10,3 +10,4 @@ print("bye bye")
 # bye bye bye
 
 print("normal test")
+print("testing commits into staging")
